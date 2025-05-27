@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Local Community Event Portal</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+
+<style>
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+  }
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #e0f7fa, #80deea);
+    color: #004d40;
+    padding: 20px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  header h1 {
+    font-weight: 700;
+    font-size: 2.5rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  #filterSection {
+    max-width: 600px;
+    margin: 0 auto 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  select, input[type="text"] {
+    padding: 8px 12px;
+    border: 2px solid #004d40;
+    border-radius: 5px;
+    font-size: 1rem;
+  }
+  #eventsContainer {
+    max-width: 800px;
+    margin: 0 auto 40px;
+  }
+  .event-card {
+    background: #b2dfdb;
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    box-shadow: 1px 2px 5px rgba(0,0,0,0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .event-info {
+    max-width: 70%;
+  }
+  .event-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+  .event-meta {
+    font-style: italic;
+    font-size: 0.9rem;
+    color: #004d40cc;
+  }
+  button.registerBtn {
+    background: #00796b;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.3s ease;
+  }
+  button.registerBtn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  form#registrationForm {
+    max-width: 600px;
+    margin: 0 auto 40px;
+    background: #004d40;
+    padding: 20px;
+    border-radius: 12px;
+    color: #e0f2f1;
+  }
+  form#registrationForm h2 {
+    margin-bottom: 15px;
+    font-weight: 700;
+    text-align: center;
+  }
+  form#registrationForm label {
+    display: block;
+    margin-bottom: 5px;
+    margin-top: 12px;
+  }
+  form#registrationForm input, form#registrationForm select {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 5px;
+    border: none;
+    font-size: 1rem;
+  }
+  form#registrationForm button {
+    margin-top: 20px;
+    width: 100%;
+    background: #009688;
+    font-weight: 700;
+  }
+  .error {
+    color: #ffccbc;
+    font-size: 0.85rem;
+    margin-top: 4px;
+  }
+  #message {
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+  }
+  #eventsContainer .event-card:nth-child(even) {
+    background: #80cbc4;
+  }
+  @media (max-width: 768px) {
+    .event-card {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .event-info {
+      max-width: 100%;
+    }
+    #filterSection {
+      flex-direction: column;
+      max-width: 300px;
+      margin: 0 auto 20px;
+    }
+    button.registerBtn {
+      width: 100%;
+    }
+  }
+</style>
+
+</head>
+<body>
+
+<header>
+  <h1>Local Community Event Portal</h1>
+</header>
+
+<section id="filterSection">
+  <select id="categoryFilter" aria-label="Filter events by category">
+    <option value="all">All Categories</option>
+    <option value="Music">Music</option>
+    <option value="Workshop">Workshop</option>
+    <option value="Sports">Sports</option>
+  </select>
+
+  <input type="text" id="searchInput" placeholder="Search events by name..." aria-label="Search events by name" />
+</section>
+
+<section id="eventsContainer" aria-live="polite">
+</section>
+
+<div id="message" aria-live="polite"></div>
+
+<form id="registrationForm" aria-label="Event registration form">
+  <h2>Register for Event</h2>
+
+  <label for="nameInput">Name</label>
+  <input type="text" id="nameInput" name="name" required />
+  <div class="error" id="nameError"></div>
+
+  <label for="emailInput">Email</label>
+  <input type="email" id="emailInput" name="email" required />
+  <div class="error" id="emailError"></div>
+
+  <label for="eventSelect">Select Event</label>
+  <select id="eventSelect" name="event" required>
+    <option value="">--Select an Event--</option>
+  </select>
+  <div class="error" id="eventError"></div>
+
+  <button type="submit" id="registerBtn">Register</button>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  console.log("Welcome to the Community Portal");
+
+  window.onload = () => alert("Page fully loaded!");
+
+  class Event {
+    constructor(id, name, category, date, seats) {
+      this.id = id;
+      this.name = name;
+      this.category = category;
+      this.date = new Date(date);
+      this.seats = seats;
+    }
+    checkAvailability() {
+      return this.seats > 0 && this.date >= new Date();
+    }
+  }
+
+  let events = [
+    new Event(1, "Music Fest", "Music", "2025-06-30", 5),
+    new Event(2, "Baking Workshop", "Workshop", "2025-07-10", 0),
+    new Event(3, "Marathon", "Sports", "2025-08-01", 20),
+    new Event(4, "Jazz Night", "Music", "2025-06-25", 15),
+    new Event(5, "Painting Workshop", "Workshop", "2025-07-15", 10),
+  ];
+
+  function createRegistrationTracker() {
+    const registrationCount = {};
+    return function(category) {
+      registrationCount[category] = (registrationCount[category] || 0) + 1;
+      return registrationCount[category];
+    };
+  }
+  const trackRegistration = createRegistrationTracker();
+
+  const eventsContainer = document.getElementById("eventsContainer");
+  const categoryFilter = document.getElementById("categoryFilter");
+  const searchInput = document.getElementById("searchInput");
+  const eventSelect = document.getElementById("eventSelect");
+  const registrationForm = document.getElementById("registrationForm");
+  const messageDiv = document.getElementById("message");
+
+  function renderEvents(filterCategory = "all", searchText = "") {
+    eventsContainer.innerHTML = "";
+
+    let filteredEvents = events.filter(ev => {
+      return ev.checkAvailability() &&
+        (filterCategory === "all" || ev.category === filterCategory) &&
+        ev.name.toLowerCase().includes(searchText.toLowerCase());
+    });
+
+    if (filteredEvents.length === 0) {
+      eventsContainer.innerHTML = "<p>No upcoming events found.</p>";
+      updateEventSelect(filteredEvents);
+      return;
+    }
+
+    filteredEvents.forEach(ev => {
+      const card = document.createElement("div");
+      card.className = "event-card";
+
+      const infoDiv = document.createElement("div");
+      infoDiv.className = "event-info";
+
+      const title = document.createElement("div");
+      title.className = "event-title";
+      title.textContent = ev.name;
+
+      const meta = document.createElement("div");
+      meta.className = "event-meta";
+      meta.textContent = `${ev.category} | Date: ${ev.date.toLocaleDateString()} | Seats available: ${ev.seats}`;
+
+      infoDiv.appendChild(title);
+      infoDiv.appendChild(meta);
+
+      const btn = document.createElement("button");
+      btn.className = "registerBtn";
+      btn.textContent = "Register";
+      btn.disabled = ev.seats === 0;
+      btn.onclick = () => handleRegistration(ev.id);
+
+      card.appendChild(infoDiv);
+      card.appendChild(btn);
+
+      eventsContainer.appendChild(card);
+    });
+
+    updateEventSelect(filteredEvents);
+  }
+
+  function updateEventSelect(filteredEvents) {
+    eventSelect.innerHTML = '<option value="">--Select an Event--</option>';
+    filteredEvents.forEach(ev => {
+      const option = document.createElement("option");
+      option.value = ev.id;
+      option.textContent = `${ev.name} (${ev.date.toLocaleDateString()})`;
+      eventSelect.appendChild(option);
+    });
+  }
+
+  function handleRegistration(eventId) {
+    try {
+      const ev = events.find(e => e.id === eventId);
+      if (!ev) throw new Error("Event not found");
+
+      if (!ev.checkAvailability()) {
+        alert("Sorry, this event is full or expired.");
+        renderEvents(categoryFilter.value, searchInput.value);
+        return;
+      }
+
+      ev.seats--;
+      trackRegistration(ev.category);
+      messageDiv.textContent = `Successfully registered for "${ev.name}"!`;
+      renderEvents(categoryFilter.value, searchInput.value);
+    } catch (error) {
+      console.error(error);
+      alert("An error occurred during registration.");
+    }
+  }
+
+  registrationForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    clearErrors();
+
+    const name = this.elements["name"].value.trim();
+    const email = this.elements["email"].value.trim();
+    const eventId = parseInt(this.elements["event"].value, 10);
+
+    let valid = true;
+
+    if (!name) {
+      showError("nameError", "Name is required.");
+      valid = false;
+    }
+    if (!email || !validateEmail(email)) {
+      showError("emailError", "Valid email is required.");
+      valid = false;
+    }
+    if (!eventId) {
+      showError("eventError", "Please select an event.");
+      valid = false;
+    }
+
+    if (!valid) return;
+
+    fakeRegister({ name, email, eventId })
+      .then(response => {
+        alert(response);
+        const ev = events.find(e => e.id === eventId);
+        if (ev) {
+          ev.seats--;
+          trackRegistration(ev.category);
+          renderEvents(categoryFilter.value, searchInput.value);
+          registrationForm.reset();
+          messageDiv.textContent = `Registration confirmed for "${ev.name}"!`;
+        }
+      })
+      .catch(error => alert("Registration failed: " + error));
+  });
+
+  function showError(id, msg) {
+    document.getElementById(id).textContent = msg;
+  }
+  function clearErrors() {
+    ["nameError", "emailError", "eventError"].forEach(id => {
+      document.getElementById(id).textContent = "";
+    });
+  }
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  function fakeRegister(data) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (Math.random() < 0.9) {
+          resolve("Registration successful!");
+        } else {
+          reject("Server error, please try again later.");
+        }
+      }, 1000);
+    });
+  }
+
+  window.events = events;
+
+  categoryFilter.addEventListener("change", () => {
+    renderEvents(categoryFilter.value, searchInput.value);
+  });
+
+  searchInput.addEventListener("input", () => {
+    renderEvents(categoryFilter.value, searchInput.value);
+  });
+
+  $(document).ready(() => {
+    const originalText = $("#message").text();
+
+    const observer = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
+        if (mutation.target.textContent.trim() !== "") {
+          $("#message").fadeIn(400).delay(3000).fadeOut(400, () => {
+            $("#message").text(originalText).show();
+          });
+        }
+      });
+    });
+
+    observer.observe(document.getElementById("message"), {
+      childList: true,
+      subtree: true,
+    });
+  });
+
+  renderEvents();
+
+</script>
+
+</body>
+</html>

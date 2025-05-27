@@ -1,0 +1,156 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f4f8;
+    padding: 20px;
+  }
+  
+  #mainHeader {
+    font-size: 28px;
+    text-align: center;
+    background: linear-gradient(to right, #4CAF50, #81C784);
+    color: white;
+    padding: 15px;
+    margin-top: 20px;
+  }
+  
+  ul.nav {
+    display: flex;
+    justify-content: center;
+    background-color: #333;
+    list-style: none;
+    padding: 10px 0;
+    margin: 20px 0;
+  }
+  
+  ul.nav li {
+    margin: 0 20px;
+  }
+  
+  ul.nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 8px 12px;
+    transition: background 0.3s;
+  }
+  
+  ul.nav a:hover {
+    background-color: #555;
+    border-radius: 4px;
+  }
+  
+  a:link {
+    color: #007BEF;
+    text-decoration: none;
+  }
+  a:visited {
+    color: purple;
+  }
+  a:active {
+    color: red;
+  }
+  
+  .eventCard {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    margin: 20px auto;
+    padding: 20px;
+    max-width: 600px;
+  }
+  
+  .description {
+    text-align: justify;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+    line-height: 1.6;
+    font-style: italic;
+  }
+  
+  .cta-section {
+    display: flex;
+    justify-content: center;
+    margin: 40px 0;
+  }
+  
+  .cta-button {
+    background: linear-gradient(to right, #ff5722, #ff9800);
+    color: white;
+    font-size: 18px;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+  
+  .cta-button:hover {
+    transform: scale(1.05);
+  }
+  
+  table {
+    border-collapse: collapse;
+    width: 90%;
+    margin: 30px auto;
+    text-align: center;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+  }
+  tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .news-bulletin {
+    column-count: 2;
+    column-gap: 30px;
+    column-rule: 1px solid gray;
+    margin: 30px auto;
+    padding: 20px;
+    max-width: 800px;
+  }
+  
+  input:focus {
+    outline: 2px solid #007BEF;
+  }
+  .hidden {
+    visibility: hidden;
+  }
+  .not-displayed {
+    display: none;
+  }
+  
+  @media screen and (max-width: 768px) {
+    ul.nav {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    ul.nav li {
+      margin: 10px 0;
+    }
+  
+    body {
+      font-size: 14px;
+    }
+  
+    .news-bulletin {
+      column-count: 1;
+    }
+  
+    .cta-button {
+      width: 80%;
+    }
+  
+    table {
+      width: 100%;
+    }
+  }
+  
